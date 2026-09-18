@@ -111,6 +111,10 @@ The application runs by default on:
 ```text
 http://localhost:8080
 ```
+Locally perform this inside git bash to make it available to Springboot
+for the current terminal session: 
+export DB_USERNAME=postgres
+export DB_PASSWORD=postgres
 
 Swagger UI is available at:
 
