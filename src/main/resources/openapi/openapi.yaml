@@ -234,7 +234,7 @@ components:
         - email
         - displayName
         - country
-        - status
+
 
       properties:
         id:
@@ -259,8 +259,6 @@ components:
           type: string
           example: PL
 
-        status:
-          $ref: '#/components/schemas/UserStatus'
 
     UserStatus:
       type: string

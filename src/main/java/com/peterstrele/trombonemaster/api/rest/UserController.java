@@ -1,12 +1,26 @@
 package com.peterstrele.trombonemaster.api.rest;
 
+import com.peterstrele.trombonemaster.api.rest.transform.UserAssembler;
+import com.peterstrele.trombonemaster.application.commands.CreateUserCommand;
 import com.peterstrele.trombonemaster.application.commandservices.UserCommandService;
 import com.peterstrele.trombonemaster.application.queryservices.UserQueryService;
+import com.peterstrele.trombonemaster.application.results.CreatedUser;
+import com.peterstrele.trombonemaster.generated.api.UsersApi;
+import com.peterstrele.trombonemaster.generated.model.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
+
 @RestController
-@RequestMapping("/api/users") //http://localhost:8080/api/users
-public class UserController {
+/**
+ * http://localhost:8080/api/users
+ * Requestmapping PATHS already defined in openapi.yaml and generated in UsersApi
+ */
+
+public class UserController implements UsersApi {
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
 
@@ -16,32 +30,37 @@ public class UserController {
     }
 
 
+    @Override
+    public ResponseEntity<UserResponse> createUser(CreateUserRequest createUserRequest) {
 
-    @GetMapping
-    public String getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
-                           @RequestParam(value = "limit", defaultValue = "50" ) int limit) {
-        return "getusers was called with parameters " + page + " and " + limit;
+        CreatedUser createdUser = userCommandService.createUser(
+                UserAssembler.toCreateUserCommand(createUserRequest)
+        );
+
+        UserResponse response = UserAssembler.toUserResponse(createdUser);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
-    @GetMapping(path = "/{userId}")
-    public String getUser(@PathVariable String userId) {
-        return "getuser was called with id of " + userId;
+    @Override
+    public ResponseEntity<Void> deleteUser(UUID userId) {
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping
-    public String createUser(){
-        return "createuser was called";
+    @Override
+    public ResponseEntity<UserResponse> getUser(UUID userId) {
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping
-    public String updateUser(){
-        return "updateuser was called";
+    @Override
+    public ResponseEntity<UserPage> getUsers(Integer page, Integer size, String username, String country, UserStatus status) {
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping
-    public String deleteUser(){
-        return "deleteuser was called";
+    @Override
+    public ResponseEntity<UserResponse> updateUser(UUID userId, UpdateUserRequest updateUserRequest) {
+        return ResponseEntity.ok().build();
     }
-
-
 }
