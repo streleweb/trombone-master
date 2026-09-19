@@ -1,6 +1,8 @@
 package com.peterstrele.trombonemaster.application.commandservices;
 
 import com.peterstrele.trombonemaster.application.commands.CreateUserCommand;
+import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
 import com.peterstrele.trombonemaster.application.results.CreatedUser;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
@@ -15,6 +17,10 @@ public class UserCommandService {
     }
 
     public CreatedUser createUser(CreateUserCommand createUserCommand) {
+
+        /**
+         * fields are being normalized/trimmed within the create method
+         */
         User user = User.create(
                 createUserCommand.username(),
                 createUserCommand.email(),
@@ -22,14 +28,22 @@ public class UserCommandService {
                 createUserCommand.country()
         );
 
-        userRepository.save(user);
+        if (userRepository.existsByUsername(createUserCommand.username())){
+            throw new UsernameAlreadyTakenException();
+        }
+
+        if (userRepository.existsByEmail(createUserCommand.email())){
+            throw new EmailAlreadyTakenException();
+        }
+
+        User savedUser = userRepository.save(user);
 
         return new CreatedUser(
-                user.getId().uuid(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getDisplayName(),
-                user.getCountry()
+                savedUser.getId().uuid(),
+                savedUser.getUsername(),
+                savedUser.getEmail(),
+                savedUser.getDisplayName(),
+                savedUser.getCountry()
         );
 
     }

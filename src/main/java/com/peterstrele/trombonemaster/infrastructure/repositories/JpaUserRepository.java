@@ -33,4 +33,14 @@ public class JpaUserRepository implements UserRepository {
         return repository.findById(id.uuid())
                 .map(UserEntityMapper::toDomain);
     }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return repository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
 }

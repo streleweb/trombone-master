@@ -1,11 +1,13 @@
 package com.peterstrele.trombonemaster.domain.model.aggregates;
 
-import ch.qos.logback.classic.spi.ConfiguratorRank;
 import com.peterstrele.trombonemaster.domain.model.valueobjects.UserId;
 import lombok.Getter;
 
+import java.util.Locale;
+
 @Getter
 public class User {
+
     private final UserId id;
     private final String username;
     private final String email;
@@ -31,13 +33,13 @@ public class User {
             String email,
             String displayName,
             String country
-    ){
+    ) {
         return new User(
                 UserId.generate(),
-                username,
-                email,
-                displayName,
-                country
+                normalizeUsername(username),
+                normalizeEmail(email),
+                normalizeDisplayName(displayName),
+                normalizeCountry(country)
         );
     }
 
@@ -63,4 +65,21 @@ public class User {
                 country
         );
     }
+
+    private static String normalizeUsername(String username) {
+        return username.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static String normalizeDisplayName(String displayName) {
+        return displayName.trim().replaceAll("\\s+", " ");
+    }
+
+    private static String normalizeCountry(String country) {
+        return country.trim().toUpperCase(Locale.ROOT);
+    }
 }
+

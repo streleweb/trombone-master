@@ -7,4 +7,8 @@ import java.util.UUID;
 
 public interface SpringDataUserRepository
         extends JpaRepository<UserEntity, UUID> {
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
 }
