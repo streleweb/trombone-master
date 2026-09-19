@@ -46,15 +46,36 @@ paths:
           required: false
           schema:
             type: string
+            minLength: 1
 
-        - name: country
+        - name: email
           in: query
           required: false
           schema:
             type: string
-            minLength: 2
-            maxLength: 2
-            pattern: '^[A-Za-z]{2}$'
+            format: email
+            minLength: 3
+            maxLength: 254
+
+        - name: displayName
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+
+        - name: country
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              minLength: 2
+              maxLength: 2
+              pattern: '^[A-Za-z]{2}$'
 
       responses:
         '200':
