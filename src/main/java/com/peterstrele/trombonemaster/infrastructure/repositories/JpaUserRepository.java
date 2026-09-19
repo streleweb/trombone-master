@@ -9,6 +9,7 @@ import com.peterstrele.trombonemaster.infrastructure.postgresql.repositories.Spr
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class JpaUserRepository implements UserRepository {

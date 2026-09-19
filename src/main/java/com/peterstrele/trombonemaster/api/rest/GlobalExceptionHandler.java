@@ -2,6 +2,7 @@ package com.peterstrele.trombonemaster.api.rest;
 
 import com.peterstrele.trombonemaster.application.exceptions.DisplayNameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.exceptions.UserNotFoundException;
 import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
 import com.peterstrele.trombonemaster.generated.model.ErrorResponse;
 import com.peterstrele.trombonemaster.generated.model.FieldError;
@@ -53,6 +54,19 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            UserNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "USER_NOT_FOUND",
+                exception.getMessage()
+        );
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(response);
     }
 

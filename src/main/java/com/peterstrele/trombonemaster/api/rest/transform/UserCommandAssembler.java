@@ -6,9 +6,9 @@ import com.peterstrele.trombonemaster.generated.model.CreateUserRequest;
 import com.peterstrele.trombonemaster.generated.model.UserResponse;
 import com.peterstrele.trombonemaster.generated.model.UserStatus;
 
-public final class UserAssembler {
+public final class UserCommandAssembler {
 
-    private UserAssembler() {
+    private UserCommandAssembler() {
     }
 
     public static CreateUserCommand toCreateUserCommand(CreateUserRequest createUserRequest) {

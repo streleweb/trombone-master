@@ -21,3 +21,8 @@ server:
 springdoc:
   swagger-ui:
     url: /openapi/openapi.yaml
+
+logging:
+  level:
+    org.hibernate.tool.schema: DEBUG
+    org.hibernate.SQL: DEBUG

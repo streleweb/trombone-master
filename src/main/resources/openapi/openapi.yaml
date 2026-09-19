@@ -52,12 +52,9 @@ paths:
           required: false
           schema:
             type: string
-
-        - name: status
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/UserStatus'
+            minLength: 2
+            maxLength: 2
+            pattern: '^[A-Za-z]{2}$'
 
       responses:
         '200':
@@ -90,6 +87,24 @@ paths:
 
         '400':
           description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '409':
+          description: User already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/users/{userId}:
 
@@ -117,6 +132,17 @@ paths:
 
         '404':
           description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
     put:
       tags:
@@ -141,9 +167,31 @@ paths:
 
         '400':
           description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
         '404':
           description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '409':
+          description: User already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
     delete:
       tags:
@@ -157,6 +205,17 @@ paths:
 
         '404':
           description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
 
@@ -187,7 +246,7 @@ components:
         displayName:
           type: string
           minLength: 2
-          maxLength: 60
+          maxLength: 30
           example: Peter Strele
 
         country:
@@ -204,29 +263,32 @@ components:
         - email
         - displayName
         - country
-
       properties:
         username:
           type: string
           minLength: 3
           maxLength: 30
+          pattern: '^[A-Za-z][A-Za-z0-9_-]*$'
           example: trombonePeter
 
         email:
           type: string
           format: email
+          minLength: 3
+          maxLength: 254
           example: peter@example.com
 
         displayName:
           type: string
-          minLength: 1
-          maxLength: 100
+          minLength: 2
+          maxLength: 30
           example: Peter
 
         country:
           type: string
           minLength: 2
           maxLength: 2
+          pattern: '^[A-Za-z]{2}$'
           example: PL
 
     UserResponse:
@@ -237,8 +299,6 @@ components:
         - email
         - displayName
         - country
-
-
       properties:
         id:
           type: string
@@ -262,14 +322,6 @@ components:
           type: string
           example: PL
 
-
-    UserStatus:
-      type: string
-      enum:
-        - ACTIVE
-        - SUSPENDED
-        - DEACTIVATED
-
     UserPage:
       type: object
       required:
@@ -278,7 +330,6 @@ components:
         - size
         - totalElements
         - totalPages
-
       properties:
         content:
           type: array
@@ -311,9 +362,11 @@ components:
         code:
           type: string
           example: VALIDATION_ERROR
+
         message:
           type: string
           example: Request validation failed.
+
         errors:
           type: array
           items:
@@ -328,6 +381,7 @@ components:
         field:
           type: string
           example: username
+
         message:
           type: string
           example: size must be between 3 and 30

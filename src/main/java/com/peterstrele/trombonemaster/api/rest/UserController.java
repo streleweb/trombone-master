@@ -1,10 +1,11 @@
 package com.peterstrele.trombonemaster.api.rest;
 
-import com.peterstrele.trombonemaster.api.rest.transform.UserAssembler;
-import com.peterstrele.trombonemaster.application.commands.CreateUserCommand;
+import com.peterstrele.trombonemaster.api.rest.transform.UserCommandAssembler;
+import com.peterstrele.trombonemaster.api.rest.transform.UserQueryAssembler;
 import com.peterstrele.trombonemaster.application.commandservices.UserCommandService;
 import com.peterstrele.trombonemaster.application.queryservices.UserQueryService;
 import com.peterstrele.trombonemaster.application.results.CreatedUser;
+import com.peterstrele.trombonemaster.application.results.RetrievedUser;
 import com.peterstrele.trombonemaster.generated.api.UsersApi;
 import com.peterstrele.trombonemaster.generated.model.*;
 import org.springframework.http.HttpStatus;
@@ -34,10 +35,10 @@ public class UserController implements UsersApi {
     public ResponseEntity<UserResponse> createUser(CreateUserRequest createUserRequest) {
 
         CreatedUser createdUser = userCommandService.createUser(
-                UserAssembler.toCreateUserCommand(createUserRequest)
+                UserCommandAssembler.toCreateUserCommand(createUserRequest)
         );
 
-        UserResponse response = UserAssembler.toUserResponse(createdUser);
+        UserResponse response = UserCommandAssembler.toUserResponse(createdUser);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -51,12 +52,18 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<UserResponse> getUser(UUID userId) {
-        return ResponseEntity.ok().build();
+        RetrievedUser retrievedUser = userQueryService.retrieveUser(userId);
+
+        UserResponse response = UserQueryAssembler.toUserResponse(retrievedUser);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @Override
-    public ResponseEntity<UserPage> getUsers(Integer page, Integer size, String username, String country, UserStatus status) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserPage> getUsers(Integer page, Integer size, String username, String country) {
+        return null;
     }
 
     @Override
