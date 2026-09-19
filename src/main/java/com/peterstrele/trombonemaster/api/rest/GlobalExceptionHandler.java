@@ -1,5 +1,6 @@
 package com.peterstrele.trombonemaster.api.rest;
 
+import com.peterstrele.trombonemaster.application.exceptions.DisplayNameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
 import com.peterstrele.trombonemaster.generated.model.ErrorResponse;
@@ -35,6 +36,19 @@ public class GlobalExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 "USER_EMAIL_TAKEN",
+                exception.getMessage()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(DisplayNameAlreadyTakenException.class)
+    public ResponseEntity<ErrorResponse> handleDisplayNameAlreadyTaken(
+            DisplayNameAlreadyTakenException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "DISPLAY_NAME_TAKEN",
                 exception.getMessage()
         );
         return ResponseEntity

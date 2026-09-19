@@ -1,6 +1,7 @@
 package com.peterstrele.trombonemaster.application.commandservices;
 
 import com.peterstrele.trombonemaster.application.commands.CreateUserCommand;
+import com.peterstrele.trombonemaster.application.exceptions.DisplayNameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
@@ -28,12 +29,16 @@ public class UserCommandService {
                 createUserCommand.country()
         );
 
-        if (userRepository.existsByUsername(createUserCommand.username())){
+        if (userRepository.existsByUsername(user.getUsername())){
             throw new UsernameAlreadyTakenException();
         }
 
-        if (userRepository.existsByEmail(createUserCommand.email())){
+        if (userRepository.existsByEmail(user.getEmail())){
             throw new EmailAlreadyTakenException();
+        }
+
+        if (userRepository.existsByDisplayName(user.getDisplayName())){
+            throw new DisplayNameAlreadyTakenException();
         }
 
         User savedUser = userRepository.save(user);
