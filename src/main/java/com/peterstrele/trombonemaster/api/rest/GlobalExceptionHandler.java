@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import jakarta.validation.ConstraintViolationException;
 
 import java.util.List;
 
@@ -106,6 +107,30 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+            ConstraintViolationException exception
+    ) {
+        List<FieldError> errors = exception.getConstraintViolations()
+                .stream()
+                .map(violation -> new FieldError(
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage()
+                ))
+                .toList();
+
+        ErrorResponse response = new ErrorResponse(
+                "VALIDATION_ERROR",
+                "Validation failed."
+        );
+
+        response.setErrors(errors);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 }

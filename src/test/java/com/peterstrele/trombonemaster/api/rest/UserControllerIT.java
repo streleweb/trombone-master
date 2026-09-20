@@ -27,12 +27,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 class UserControllerIT {
 
+
+
     @Container
     static PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>("postgres:17")
                     .withDatabaseName("trombone_master_test")
                     .withUsername("test")
                     .withPassword("test");
+
+    static {
+        postgres.start();
+    }
 
     @DynamicPropertySource
     static void configureDatabase(DynamicPropertyRegistry registry) {
@@ -59,6 +65,12 @@ class UserControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Test
+    void shouldReturnOneUserById()  throws Exception {
+        mockMvc.perform(get("/api/users/77777777-7777-7777-7777-777777777777"))
+                .andExpect(status().isOk());
+    }
 
     @Test
     void shouldReturnAllUsers() throws Exception {
@@ -103,13 +115,10 @@ class UserControllerIT {
     }
 
     @Test
-    void shouldNotFilterEmailPartially() throws Exception {
-        mockMvc.perform(
-                        get("/api/users")
-                                .param("email", "peter")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalElements").value(0));
+    void shouldRejectInvalidEmailFilter() throws Exception {
+        mockMvc.perform(get("/api/users").param("email", "peter"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
