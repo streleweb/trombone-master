@@ -6,12 +6,14 @@ import com.peterstrele.trombonemaster.application.commandservices.UserCommandSer
 import com.peterstrele.trombonemaster.application.queryservices.UserQueryService;
 import com.peterstrele.trombonemaster.application.results.CreatedUser;
 import com.peterstrele.trombonemaster.application.results.RetrievedUser;
+import com.peterstrele.trombonemaster.application.results.UserPageResult;
 import com.peterstrele.trombonemaster.generated.api.UsersApi;
 import com.peterstrele.trombonemaster.generated.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -62,8 +64,27 @@ public class UserController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<UserPage> getUsers(Integer page, Integer size, String username, String country) {
-        return null;
+    public ResponseEntity<UserPage> getUsers(
+            Integer page,
+            Integer size,
+            String username,
+            String email,
+            String displayName,
+            List<String> country
+    ) {
+
+        UserPageResult result = userQueryService.retrieveUsers(
+                page,
+                size,
+                username,
+                email,
+                displayName,
+                country
+        );
+
+        UserPage response = UserQueryAssembler.toUserPage(result);
+
+        return ResponseEntity.ok(response);
     }
 
     @Override
