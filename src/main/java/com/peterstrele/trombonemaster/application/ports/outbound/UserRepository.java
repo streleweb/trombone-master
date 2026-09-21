@@ -20,6 +20,12 @@ public interface UserRepository {
 
     boolean existsByDisplayName(String displayName);
 
+    boolean isUsernameTakenByAnotherUser(String username, UserId userId);
+
+    boolean isEmailTakenByAnotherUser(String email, UserId userId);
+
+    boolean isDisplayNameTakenByAnotherUser(String displayName, UserId userId);
+
     Page<User> findUsers(
             int page,
             int size,

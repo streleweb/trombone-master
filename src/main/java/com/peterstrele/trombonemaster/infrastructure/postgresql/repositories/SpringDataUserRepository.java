@@ -15,4 +15,10 @@ public interface SpringDataUserRepository
     boolean existsByEmail(String email);
 
     boolean existsByDisplayName(String displayName);
+
+    boolean existsByUsernameAndIdNot(String username, UUID id);
+
+    boolean existsByEmailAndIdNot(String email, UUID id);
+
+    boolean existsByDisplayNameAndIdNot(String displayName, UUID id);
 }

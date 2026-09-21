@@ -20,6 +20,9 @@ public class UserEntity {
     @Column(nullable = false, unique = true, length = 254)
     private String email;
 
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
     @Column(nullable = false, unique = true, length = 30)
     private String displayName;
 
@@ -34,12 +37,14 @@ public class UserEntity {
             UUID id,
             String username,
             String email,
+            String passwordHash,
             String displayName,
             String country
     ) {
         this.id = id;
         this.username = username;
         this.email = email;
+        this.passwordHash = passwordHash;
         this.displayName = displayName;
         this.country = country;
     }
@@ -63,4 +68,6 @@ public class UserEntity {
     public String getCountry() {
         return country;
     }
+
+    public String getPasswordHash() { return passwordHash; }
 }

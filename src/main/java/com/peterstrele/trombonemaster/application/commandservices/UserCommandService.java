@@ -1,55 +1,79 @@
 package com.peterstrele.trombonemaster.application.commandservices;
 
-import com.peterstrele.trombonemaster.application.commands.CreateUserCommand;
+import com.peterstrele.trombonemaster.application.commands.RegisterUserCommand;
+import com.peterstrele.trombonemaster.application.commands.UpdateUserCommand;
 import com.peterstrele.trombonemaster.application.exceptions.DisplayNameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.exceptions.UserNotFoundException;
 import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.ports.outbound.PasswordHasher;
 import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
-import com.peterstrele.trombonemaster.application.results.CreatedUser;
+import com.peterstrele.trombonemaster.application.results.UserResult;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserCommandService {
     private final UserRepository userRepository;
+    private final PasswordHasher passwordHasher;
 
-    public UserCommandService(UserRepository userRepository) {
+    public UserCommandService(UserRepository userRepository, PasswordHasher passwordHasher) {
         this.userRepository = userRepository;
+        this.passwordHasher = passwordHasher;
     }
 
-    public CreatedUser createUser(CreateUserCommand createUserCommand) {
 
-        /**
-         * fields are being normalized/trimmed within the create method
-         */
-        User user = User.create(
-                createUserCommand.username(),
-                createUserCommand.email(),
-                createUserCommand.displayName(),
-                createUserCommand.country()
+    public UserResult updateUser(UpdateUserCommand updateUserCommand) {
+
+        User existingUser = userRepository
+                .findById(updateUserCommand.id())
+                .orElseThrow(UserNotFoundException::new);
+
+        User updatedUser = existingUser.update(
+                updateUserCommand.username(),
+                updateUserCommand.email(),
+                updateUserCommand.displayName(),
+                updateUserCommand.country()
         );
 
-        if (userRepository.existsByUsername(user.getUsername())){
+        if (userRepository.isUsernameTakenByAnotherUser(
+                updatedUser.getUsername(),
+                updatedUser.getId()
+        )) {
             throw new UsernameAlreadyTakenException();
         }
 
-        if (userRepository.existsByEmail(user.getEmail())){
+        if (userRepository.isEmailTakenByAnotherUser(
+                updatedUser.getEmail(),
+                updatedUser.getId()
+        )) {
             throw new EmailAlreadyTakenException();
         }
 
-        if (userRepository.existsByDisplayName(user.getDisplayName())){
+        if (userRepository.isDisplayNameTakenByAnotherUser(
+                updatedUser.getDisplayName(),
+                updatedUser.getId()
+        )) {
             throw new DisplayNameAlreadyTakenException();
         }
 
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(updatedUser);
 
-        return new CreatedUser(
-                savedUser.getId().uuid(),
-                savedUser.getUsername(),
-                savedUser.getEmail(),
-                savedUser.getDisplayName(),
-                savedUser.getCountry()
+        return toUserResult(savedUser); //returns new UserResult
+    }
+
+    /**
+     * Mapper
+     * @param user
+     * @return
+     */
+    private UserResult toUserResult(User user) {
+        return new UserResult(
+                user.getId().uuid(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getDisplayName(),
+                user.getCountry()
         );
-
     }
 }

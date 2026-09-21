@@ -13,6 +13,7 @@ public final class UserEntityMapper {
                 user.getId().uuid(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getPasswordHash(),
                 user.getDisplayName(),
                 user.getCountry()
         );
@@ -23,6 +24,7 @@ public final class UserEntityMapper {
                 new UserId(entity.getId()),
                 entity.getUsername(),
                 entity.getEmail(),
+                entity.getPasswordHash(),
                 entity.getDisplayName(),
                 entity.getCountry()
         );

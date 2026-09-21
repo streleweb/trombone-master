@@ -154,7 +154,7 @@ public interface UsersApi {
 
     ResponseEntity<UserPage> getUsers(...);
 
-    ResponseEntity<UserResponse> createUser(...);
+    ResponseEntity<UserResponse> registerUser(...);
 
     ResponseEntity<UserResponse> getUser(UUID userId);
 

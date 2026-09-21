@@ -10,10 +10,315 @@ servers:
     description: Local development
 
 tags:
+  - name: Auth
+    description: Authentication and account registration
   - name: Users
     description: User management
 
 paths:
+
+  # ============================================================
+  # Authentication
+  # ============================================================
+
+  /api/auth/register:
+
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      operationId: registerUser
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+
+      responses:
+        '201':
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        '400':
+          description: Invalid registration data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '409':
+          description: Username or email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /api/auth/login:
+
+    post:
+      tags:
+        - Auth
+      summary: Authenticate a user
+      operationId: login
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+
+      responses:
+        '200':
+          description: Authentication successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '401':
+          description: Invalid username or password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /api/auth/refresh:
+
+    post:
+      tags:
+        - Auth
+      summary: Refresh an access token
+      operationId: refreshToken
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+
+      responses:
+        '200':
+          description: Token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '401':
+          description: Invalid, expired, or revoked refresh token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /api/auth/logout:
+
+    post:
+      tags:
+        - Auth
+      summary: Log out and revoke a refresh token
+      operationId: logout
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+
+      responses:
+        '204':
+          description: Logged out successfully.
+
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '401':
+          description: Invalid refresh token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  # ============================================================
+  # Current authenticated user
+  # ============================================================
+
+  /api/users/me:
+
+    get:
+      tags:
+        - Users
+      summary: Get the current authenticated user
+      operationId: getCurrentUser
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        '200':
+          description: Current user retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+    put:
+      tags:
+        - Users
+      summary: Update the current authenticated user
+      operationId: updateCurrentUser
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+
+      responses:
+        '200':
+          description: Current user updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '409':
+          description: Username or email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+    delete:
+      tags:
+        - Users
+      summary: Delete the current authenticated user's account
+      operationId: deleteCurrentUser
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        '204':
+          description: Account deleted successfully.
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  # ============================================================
+  # User administration
+  # ============================================================
 
   /api/users:
 
@@ -22,6 +327,9 @@ paths:
         - Users
       summary: Get users
       operationId: getUsers
+
+      security:
+        - bearerAuth: []
 
       parameters:
         - name: page
@@ -85,36 +393,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserPage'
 
-    post:
-      tags:
-        - Users
-      summary: Create user
-      operationId: createUser
-
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserRequest'
-
-      responses:
-        '201':
-          description: User created successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-
-        '400':
-          description: Invalid request.
+        '401':
+          description: Authentication required.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-        '409':
-          description: User already exists.
+        '403':
+          description: Access forbidden.
           content:
             application/json:
               schema:
@@ -126,6 +413,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
 
   /api/users/{userId}:
 
@@ -143,6 +431,9 @@ paths:
       summary: Get user
       operationId: getUser
 
+      security:
+        - bearerAuth: []
+
       responses:
         '200':
           description: User retrieved successfully.
@@ -150,6 +441,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '403':
+          description: Access forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
         '404':
           description: User not found.
@@ -165,11 +470,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+
     put:
       tags:
         - Users
       summary: Update user
       operationId: updateUser
+
+      security:
+        - bearerAuth: []
 
       requestBody:
         required: true
@@ -193,6 +502,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '403':
+          description: Access forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
         '404':
           description: User not found.
           content:
@@ -201,7 +524,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
         '409':
-          description: User already exists.
+          description: Username or email already exists.
           content:
             application/json:
               schema:
@@ -214,15 +537,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+
     delete:
       tags:
         - Users
       summary: Delete user
       operationId: deleteUser
 
+      security:
+        - bearerAuth: []
+
       responses:
         '204':
           description: User deleted successfully.
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '403':
+          description: Access forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
         '404':
           description: User not found.
@@ -238,18 +579,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+
 components:
+
+  # ============================================================
+  # Security
+  # ============================================================
+
+  securitySchemes:
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+  # ============================================================
+  # Schemas
+  # ============================================================
 
   schemas:
 
-    CreateUserRequest:
+    RegisterRequest:
       type: object
       required:
         - username
         - email
+        - password
         - displayName
         - country
       properties:
+
         username:
           type: string
           minLength: 3
@@ -264,6 +624,14 @@ components:
           maxLength: 254
           example: peter@example.com
 
+        password:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+          writeOnly: true
+          example: Correct-Horse-Battery-Staple
+
         displayName:
           type: string
           minLength: 2
@@ -277,6 +645,95 @@ components:
           pattern: '^[A-Za-z]{2}$'
           example: PL
 
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+
+        username:
+          type: string
+          minLength: 1
+          maxLength: 30
+          example: peter_strele
+
+        password:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          example: SecurePassword123!
+
+
+    LoginResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - tokenType
+        - expiresIn
+      properties:
+
+        accessToken:
+          type: string
+          description: Short-lived JWT access token.
+
+        refreshToken:
+          type: string
+          description: Refresh token used to obtain a new access token.
+
+        tokenType:
+          type: string
+          example: Bearer
+
+        expiresIn:
+          type: integer
+          format: int64
+          description: Access token lifetime in seconds.
+          example: 900
+
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+
+        refreshToken:
+          type: string
+          minLength: 1
+
+
+    TokenResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - tokenType
+        - expiresIn
+      properties:
+
+        accessToken:
+          type: string
+          description: Short-lived JWT access token.
+
+        refreshToken:
+          type: string
+          description: Rotated refresh token.
+
+        tokenType:
+          type: string
+          example: Bearer
+
+        expiresIn:
+          type: integer
+          format: int64
+          description: Access token lifetime in seconds.
+          example: 900
+
+
     UpdateUserRequest:
       type: object
       required:
@@ -285,6 +742,7 @@ components:
         - displayName
         - country
       properties:
+
         username:
           type: string
           minLength: 3
@@ -312,6 +770,7 @@ components:
           pattern: '^[A-Za-z]{2}$'
           example: PL
 
+
     UserResponse:
       type: object
       required:
@@ -321,6 +780,7 @@ components:
         - displayName
         - country
       properties:
+
         id:
           type: string
           format: uuid
@@ -343,6 +803,7 @@ components:
           type: string
           example: PL
 
+
     UserPage:
       type: object
       required:
@@ -352,6 +813,7 @@ components:
         - totalElements
         - totalPages
       properties:
+
         content:
           type: array
           items:
@@ -374,12 +836,14 @@ components:
           type: integer
           example: 3
 
+
     ErrorResponse:
       type: object
       required:
         - code
         - message
       properties:
+
         code:
           type: string
           example: VALIDATION_ERROR
@@ -393,12 +857,14 @@ components:
           items:
             $ref: '#/components/schemas/FieldError'
 
+
     FieldError:
       type: object
       required:
         - field
         - message
       properties:
+
         field:
           type: string
           example: username

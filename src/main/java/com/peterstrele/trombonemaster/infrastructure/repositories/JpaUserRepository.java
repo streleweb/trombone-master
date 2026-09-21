@@ -56,6 +56,39 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    public boolean isUsernameTakenByAnotherUser(
+            String username,
+            UserId userId
+    ) {
+        return repository.existsByUsernameAndIdNot(
+                username,
+                userId.uuid()
+        );
+    }
+
+    @Override
+    public boolean isEmailTakenByAnotherUser(
+            String email,
+            UserId userId
+    ) {
+        return repository.existsByEmailAndIdNot(
+                email,
+                userId.uuid()
+        );
+    }
+
+    @Override
+    public boolean isDisplayNameTakenByAnotherUser(
+            String displayName,
+            UserId userId
+    ) {
+        return repository.existsByDisplayNameAndIdNot(
+                displayName,
+                userId.uuid()
+        );
+    }
+
+    @Override
     public Page<User> findUsers(
             int page,
             int size,
