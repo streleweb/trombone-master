@@ -1,11 +1,15 @@
 package com.peterstrele.trombonemaster.application.commandservices;
 
+import com.peterstrele.trombonemaster.application.commands.LoginUserCommand;
 import com.peterstrele.trombonemaster.application.commands.RegisterUserCommand;
 import com.peterstrele.trombonemaster.application.exceptions.DisplayNameAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.exceptions.InvalidCredentialsException;
 import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.ports.outbound.AccessTokenProvider;
 import com.peterstrele.trombonemaster.application.ports.outbound.PasswordHasher;
 import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
+import com.peterstrele.trombonemaster.application.results.AuthenticationResult;
 import com.peterstrele.trombonemaster.application.results.UserResult;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
 import org.springframework.stereotype.Service;
@@ -17,13 +21,16 @@ public class AuthCommandService {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
+    private final AccessTokenProvider  accessTokenProvider;
 
     public AuthCommandService(
             UserRepository userRepository,
-            PasswordHasher passwordHasher
+            PasswordHasher passwordHasher,
+            AccessTokenProvider accessTokenProvider
     ) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
+        this.accessTokenProvider = accessTokenProvider;
     }
 
     public UserResult registerUser(RegisterUserCommand command) {
@@ -65,6 +72,31 @@ public class AuthCommandService {
                 savedUser.getDisplayName(),
                 savedUser.getCountry()
         );
+    }
+
+    public AuthenticationResult login(LoginUserCommand command) {
+
+        String normalizedUsername = command.username()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        User user = userRepository
+                .findByUsername(normalizedUsername)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        if (!passwordHasher.matches(
+                command.password(),
+                user.getPasswordHash()
+        )) {
+            throw new InvalidCredentialsException();
+        }
+
+        String accessToken = accessTokenProvider.createToken(
+                user.getId(),
+                user.getUsername()
+        );
+
+        return null; //TODO
     }
 
     private static String normalizeUsername(String username) {

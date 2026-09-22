@@ -4,6 +4,7 @@ import com.peterstrele.trombonemaster.infrastructure.postgresql.entities.UserEnt
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataUserRepository
@@ -11,6 +12,8 @@ public interface SpringDataUserRepository
                 JpaSpecificationExecutor<UserEntity> {
 
     boolean existsByUsername(String username);
+
+    Optional<UserEntity> findByUsername(String username);
 
     boolean existsByEmail(String email);
 
