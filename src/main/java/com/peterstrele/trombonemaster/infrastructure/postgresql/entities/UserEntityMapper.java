@@ -1,7 +1,7 @@
 package com.peterstrele.trombonemaster.infrastructure.postgresql.entities;
 
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
-import com.peterstrele.trombonemaster.domain.model.valueobjects.UserId;
+import com.peterstrele.trombonemaster.domain.model.valueobjects.*;
 
 public final class UserEntityMapper {
 
@@ -11,22 +11,22 @@ public final class UserEntityMapper {
     public static UserEntity toEntity(User user) {
         return new UserEntity(
                 user.getId().uuid(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPasswordHash(),
-                user.getDisplayName(),
-                user.getCountry()
+                user.getUsername().value(),
+                user.getEmail().value(),
+                user.getPasswordHash().value(),
+                user.getDisplayName().value(),
+                user.getCountry().value()
         );
     }
 
     public static User toDomain(UserEntity entity) {
         return User.reconstitute(
                 new UserId(entity.getId()),
-                entity.getUsername(),
-                entity.getEmail(),
-                entity.getPasswordHash(),
-                entity.getDisplayName(),
-                entity.getCountry()
+                Username.of(entity.getUsername()),
+                EmailAddress.of(entity.getEmail()),
+                PasswordHash.of(entity.getPasswordHash()),
+                DisplayName.of(entity.getDisplayName()),
+                CountryCode.of(entity.getCountry())
         );
     }
 }

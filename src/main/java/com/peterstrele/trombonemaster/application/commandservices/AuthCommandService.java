@@ -12,6 +12,7 @@ import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
 import com.peterstrele.trombonemaster.application.results.AuthenticationResult;
 import com.peterstrele.trombonemaster.application.results.UserResult;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
+import com.peterstrele.trombonemaster.domain.model.valueobjects.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -21,31 +22,29 @@ public class AuthCommandService {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
-    private final AccessTokenProvider  accessTokenProvider;
+    //private final AccessTokenProvider  accessTokenProvider;
 
     public AuthCommandService(
             UserRepository userRepository,
-            PasswordHasher passwordHasher,
-            AccessTokenProvider accessTokenProvider
+            PasswordHasher passwordHasher
     ) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
-        this.accessTokenProvider = accessTokenProvider;
+
     }
 
     public UserResult registerUser(RegisterUserCommand command) {
 
-        // normalize and check if exists so the password doesn`t have to be hashed for nothing
-        String username = normalizeUsername(command.username());
-        String email = normalizeEmail(command.email());
-        String displayName = normalizeDisplayName(command.displayName());
-        String country = normalizeCountry(command.country());
+        Username username = Username.of(command.username());
+        EmailAddress emailAddress = EmailAddress.of(command.email());
+        DisplayName displayName = DisplayName.of(command.displayName());
+        CountryCode country = CountryCode.of(command.country());
 
         if (userRepository.existsByUsername(username)) {
             throw new UsernameAlreadyTakenException();
         }
 
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(emailAddress)) {
             throw new EmailAlreadyTakenException();
         }
 
@@ -53,11 +52,13 @@ public class AuthCommandService {
             throw new DisplayNameAlreadyTakenException();
         }
 
-        String passwordHash = passwordHasher.hash(command.password());
+        PasswordHash passwordHash = PasswordHash.of(
+                passwordHasher.hash(command.password())
+        );
 
         User user = User.register(
                 username,
-                email,
+                emailAddress,
                 passwordHash,
                 displayName,
                 country
@@ -67,26 +68,25 @@ public class AuthCommandService {
 
         return new UserResult(
                 savedUser.getId().uuid(),
-                savedUser.getUsername(),
-                savedUser.getEmail(),
-                savedUser.getDisplayName(),
-                savedUser.getCountry()
+                savedUser.getUsername().value(),
+                savedUser.getEmail().value(),
+                savedUser.getDisplayName().value(),
+                savedUser.getCountry().value()
         );
     }
 
+    /*
     public AuthenticationResult login(LoginUserCommand command) {
 
-        String normalizedUsername = command.username()
-                .trim()
-                .toLowerCase(Locale.ROOT);
+       Username username = Username.of(command.username());
 
         User user = userRepository
-                .findByUsername(normalizedUsername)
+                .findByUsername(username)
                 .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordHasher.matches(
                 command.password(),
-                user.getPasswordHash()
+                user.getPasswordHash().value()
         )) {
             throw new InvalidCredentialsException();
         }
@@ -97,21 +97,6 @@ public class AuthCommandService {
         );
 
         return null; //TODO
-    }
+    }*/
 
-    private static String normalizeUsername(String username) {
-        return username.trim().toLowerCase(Locale.ROOT);
-    }
-
-    private static String normalizeEmail(String email) {
-        return email.trim().toLowerCase(Locale.ROOT);
-    }
-
-    private static String normalizeDisplayName(String displayName) {
-        return displayName.trim().replaceAll("\\s+", " ");
-    }
-
-    private static String normalizeCountry(String country) {
-        return country.trim().toUpperCase(Locale.ROOT);
-    }
 }

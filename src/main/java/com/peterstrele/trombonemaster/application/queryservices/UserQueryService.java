@@ -7,7 +7,6 @@ import com.peterstrele.trombonemaster.application.results.RetrievedUser;
 import com.peterstrele.trombonemaster.application.results.UserPageResult;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
 import com.peterstrele.trombonemaster.domain.model.valueobjects.UserId;
-import com.peterstrele.trombonemaster.generated.model.UserResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,24 +14,20 @@ import java.util.UUID;
 
 @Service
 public class UserQueryService {
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
 
     public UserQueryService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public RetrievedUser retrieveUser(UUID id){
+    public RetrievedUser retrieveUser(UUID id) {
 
-        User user = userRepository.findById(new UserId(id))
+        User user = userRepository
+                .findById(new UserId(id))
                 .orElseThrow(UserNotFoundException::new);
 
-        return new RetrievedUser(
-                user.getId().uuid(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getDisplayName(),
-                user.getCountry()
-        );
+        return toRetrievedUser(user);
     }
 
     public UserPageResult retrieveUsers(
@@ -42,7 +37,7 @@ public class UserQueryService {
             String email,
             String displayName,
             List<String> country
-    ){
+    ) {
         Page<User> result = userRepository.findUsers(
                 page,
                 size,
@@ -54,13 +49,7 @@ public class UserQueryService {
 
         List<RetrievedUser> users = result.content()
                 .stream()
-                .map(user -> new RetrievedUser(
-                        user.getId().uuid(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getDisplayName(),
-                        user.getCountry()
-                ))
+                .map(this::toRetrievedUser)
                 .toList();
 
         return new UserPageResult(
@@ -69,6 +58,16 @@ public class UserQueryService {
                 result.size(),
                 result.totalElements(),
                 result.totalPages()
+        );
+    }
+
+    private RetrievedUser toRetrievedUser(User user) {
+        return new RetrievedUser(
+                user.getId().uuid(),
+                user.getUsername().value(),
+                user.getEmail().value(),
+                user.getDisplayName().value(),
+                user.getCountry().value()
         );
     }
 }

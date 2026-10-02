@@ -1,21 +1,23 @@
 package com.peterstrele.trombonemaster.infrastructure.repositories;
 
-import org.springframework.data.domain.PageRequest;
 import com.peterstrele.trombonemaster.application.ports.outbound.Page;
 import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
+import com.peterstrele.trombonemaster.domain.model.valueobjects.DisplayName;
+import com.peterstrele.trombonemaster.domain.model.valueobjects.EmailAddress;
 import com.peterstrele.trombonemaster.domain.model.valueobjects.UserId;
+import com.peterstrele.trombonemaster.domain.model.valueobjects.Username;
 import com.peterstrele.trombonemaster.infrastructure.postgresql.entities.UserEntity;
 import com.peterstrele.trombonemaster.infrastructure.postgresql.entities.UserEntityMapper;
 import com.peterstrele.trombonemaster.infrastructure.postgresql.repositories.SpringDataUserRepository;
 import com.peterstrele.trombonemaster.infrastructure.postgresql.repositories.UserSpecification;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class JpaUserRepository implements UserRepository {
@@ -41,55 +43,55 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return repository.findByUsername(username)
+    public Optional<User> findByUsername(Username username) {
+        return repository.findByUsername(username.value())
                 .map(UserEntityMapper::toDomain);
     }
 
     @Override
-    public boolean existsByUsername(String username) {
-        return repository.existsByUsername(username);
+    public boolean existsByUsername(Username username) {
+        return repository.existsByUsername(username.value());
     }
 
     @Override
-    public boolean existsByEmail(String email) {
-        return repository.existsByEmail(email);
+    public boolean existsByEmail(EmailAddress email) {
+        return repository.existsByEmail(email.value());
     }
 
     @Override
-    public boolean existsByDisplayName(String displayName) {
-        return repository.existsByDisplayName(displayName);
+    public boolean existsByDisplayName(DisplayName displayName) {
+        return repository.existsByDisplayName(displayName.value());
     }
 
     @Override
     public boolean isUsernameTakenByAnotherUser(
-            String username,
+            Username username,
             UserId userId
     ) {
         return repository.existsByUsernameAndIdNot(
-                username,
+                username.value(),
                 userId.uuid()
         );
     }
 
     @Override
     public boolean isEmailTakenByAnotherUser(
-            String email,
+            EmailAddress email,
             UserId userId
     ) {
         return repository.existsByEmailAndIdNot(
-                email,
+                email.value(),
                 userId.uuid()
         );
     }
 
     @Override
     public boolean isDisplayNameTakenByAnotherUser(
-            String displayName,
+            DisplayName displayName,
             UserId userId
     ) {
         return repository.existsByDisplayNameAndIdNot(
-                displayName,
+                displayName.value(),
                 userId.uuid()
         );
     }
@@ -103,12 +105,11 @@ public class JpaUserRepository implements UserRepository {
             String displayName,
             List<String> countries
     ) {
-
         Specification<UserEntity> specification = null;
 
         if (username != null && !username.isBlank()) {
-            specification = UserSpecification
-                    .usernameContainsIgnoreCase(username);
+            specification =
+                    UserSpecification.usernameContainsIgnoreCase(username);
         }
 
         if (email != null && !email.isBlank()) {
@@ -141,7 +142,6 @@ public class JpaUserRepository implements UserRepository {
         org.springframework.data.domain.Page<UserEntity> result =
                 repository.findAll(
                         specification,
-
                         PageRequest.of(
                                 page,
                                 size,

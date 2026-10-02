@@ -1,5 +1,6 @@
 package com.peterstrele.trombonemaster.infrastructure.postgresql.entities;
 
+import com.peterstrele.trombonemaster.domain.model.valueobjects.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
