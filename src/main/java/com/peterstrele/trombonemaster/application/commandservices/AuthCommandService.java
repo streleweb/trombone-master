@@ -6,6 +6,7 @@ import com.peterstrele.trombonemaster.application.exceptions.DisplayNameAlreadyT
 import com.peterstrele.trombonemaster.application.exceptions.EmailAlreadyTakenException;
 import com.peterstrele.trombonemaster.application.exceptions.InvalidCredentialsException;
 import com.peterstrele.trombonemaster.application.exceptions.UsernameAlreadyTakenException;
+import com.peterstrele.trombonemaster.application.ports.outbound.AccessToken;
 import com.peterstrele.trombonemaster.application.ports.outbound.AccessTokenProvider;
 import com.peterstrele.trombonemaster.application.ports.outbound.PasswordHasher;
 import com.peterstrele.trombonemaster.application.ports.outbound.UserRepository;
@@ -13,6 +14,7 @@ import com.peterstrele.trombonemaster.application.results.AuthenticationResult;
 import com.peterstrele.trombonemaster.application.results.UserResult;
 import com.peterstrele.trombonemaster.domain.model.aggregates.User;
 import com.peterstrele.trombonemaster.domain.model.valueobjects.*;
+import jakarta.persistence.Access;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -22,14 +24,16 @@ public class AuthCommandService {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
-    //private final AccessTokenProvider  accessTokenProvider;
+    private final AccessTokenProvider  accessTokenProvider;
 
     public AuthCommandService(
             UserRepository userRepository,
-            PasswordHasher passwordHasher
+            PasswordHasher passwordHasher,
+            AccessTokenProvider accessTokenProvider
     ) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
+        this.accessTokenProvider = accessTokenProvider;
 
     }
 
@@ -75,10 +79,9 @@ public class AuthCommandService {
         );
     }
 
-    /*
-    public AuthenticationResult login(LoginUserCommand command) {
 
-       Username username = Username.of(command.username());
+    public AuthenticationResult login(LoginUserCommand command) {
+        Username username = Username.of(command.username());
 
         User user = userRepository
                 .findByUsername(username)
@@ -91,12 +94,16 @@ public class AuthCommandService {
             throw new InvalidCredentialsException();
         }
 
-        String accessToken = accessTokenProvider.createToken(
+        AccessToken accessToken = accessTokenProvider.createToken(
                 user.getId(),
                 user.getUsername()
         );
 
-        return null; //TODO
-    }*/
+        return new AuthenticationResult(
+                accessToken.value(),
+                "Bearer",
+                accessToken.expiresIn()
+        );
+    }
 
 }

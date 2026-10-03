@@ -1,7 +1,9 @@
 package com.peterstrele.trombonemaster.api.rest;
 
+import com.peterstrele.trombonemaster.api.rest.transform.AuthCommandAssembler;
 import com.peterstrele.trombonemaster.api.rest.transform.UserCommandAssembler;
 import com.peterstrele.trombonemaster.application.commandservices.AuthCommandService;
+import com.peterstrele.trombonemaster.application.results.AuthenticationResult;
 import com.peterstrele.trombonemaster.application.results.UserResult;
 import com.peterstrele.trombonemaster.generated.api.AuthApi;
 import com.peterstrele.trombonemaster.generated.model.*;
@@ -19,8 +21,22 @@ public class AuthController implements AuthApi {
     }
 
     @Override
-    public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
-        return null;
+    public ResponseEntity<LoginResponse> login(
+            LoginRequest loginRequest
+    ) {
+        AuthenticationResult result =
+                authCommandService.login(
+                        AuthCommandAssembler.toLoginUserCommand(loginRequest)
+                );
+
+        LoginResponse response = new LoginResponse(
+                result.accessToken(),
+                null,
+                result.tokenType(),
+                result.expiresIn()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @Override

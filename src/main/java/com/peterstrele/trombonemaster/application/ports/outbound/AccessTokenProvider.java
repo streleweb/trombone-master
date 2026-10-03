@@ -5,7 +5,7 @@ import com.peterstrele.trombonemaster.domain.model.valueobjects.Username;
 
 public interface AccessTokenProvider {
 
-    String createToken(
+    AccessToken createToken(
             UserId userId,
             Username username
     );

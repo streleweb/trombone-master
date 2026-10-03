@@ -296,4 +296,24 @@ class AuthControllerIT {
                 .andExpect(jsonPath("$.code")
                         .value("VALIDATION_ERROR"));
     }
+
+    @Test
+    void shouldLoginWithValidCredentials() throws Exception {
+        String request = """
+            {
+                "username": "hansi4",
+                "password": "TestPassword123!"
+            }
+            """;
+
+        mockMvc.perform(
+                        post("/api/auth/login")
+                                .contentType("application/json")
+                                .content(request)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.expiresIn").value(900));
+    }
 }

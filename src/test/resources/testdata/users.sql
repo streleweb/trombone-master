@@ -21,7 +21,7 @@ VALUES
         '22222222-2222-2222-2222-222222222222',
         'hansi4',
         'peter@example.com',
-        '$2a$10$dummyhashfortestfixture000000000000000000000000000',
+        '$2a$10$oSUBgzGnpUnB8UgX3Otxxu7myS.gc.Rmiy7kqwGbH5r2URinbE6z6',
         'Hans Strele',
         'PL'
     ),
